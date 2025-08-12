@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SuperAdmin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // We will store a hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Hogwarts School of Witchcraft"
+  subdomain String   @unique // e.g., "hogwarts"
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  
+  // Later we will add relations to users, students, etc.
+  users User[]
+  planId String?
+  plan   SubscriptionPlan? @relation(fields: [planId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  password  String
+  role      UserRole @default(ADMIN) // Role within the school
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to School: Every user must belong to one school
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Ensure email is unique per school
+  @@unique([email, schoolId])
+}
+
+// Define an Enum for the user roles
+enum UserRole {
+  ADMIN
+  TEACHER
+}
+
+enum SubscriptionStatus {
+  TRIAL     // On a trial period
+  ACTIVE    // Actively subscribed and paid
+  INACTIVE  // Subscription ended or was canceled
+  DEACTIVATED // Manually deactivated by Super Admin
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique // e.g., "maintenanceMode", "allowNewSignups"
+  value String // e.g., "true", "false"
+}
+
+model SubscriptionPlan {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g., "Basic", "Pro", "Enterprise"
+  price     Decimal  @db.Decimal(10, 2) // For storing monetary values accurately
+  features  String[] // A list of features included in the plan
+  status    PlanStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // A plan can be assigned to many schools
+  schools School[]
+}
+
+// --- NEW ENUM ---
+enum PlanStatus {
+  ACTIVE
+  ARCHIVED
+}
