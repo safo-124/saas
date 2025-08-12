@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Book, Banknote, Megaphone, Library, Package, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Users, Book, Banknote, Megaphone, Library, Package, BookOpen, Settings, CalendarDays } from 'lucide-react';
 
 // These items correspond to the modules a school can have
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Timetable', href: '/timetable', icon: CalendarDays },
   { name: 'Staff', href: '/staff', icon: Users },
   { name: 'Students', href: '/students', icon: Users },
   { name: 'Classes', href: '/classes', icon: Book },
@@ -15,6 +16,7 @@ const navItems = [
   { name: 'Library', href: '/library', icon: Library },
   { name: 'Stores', href: '/stores', icon: Package },
   { name: 'Announcements', href: '/announcements', icon: Megaphone },
+  { name: 'Settings', href: '/settings/academic', icon: Settings }, 
 ];
 
 export function Sidebar({ schoolName }) {

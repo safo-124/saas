@@ -33,6 +33,8 @@ model School {
   students  Student[]
   classes   Class[]
   subjects  Subject[]
+  timeSlots TimeSlot[]
+  timetableEntries TimetableEntry[]
   planId String?
   plan   SubscriptionPlan? @relation(fields: [planId], references: [id])
 }
@@ -52,6 +54,9 @@ model User {
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   subjectAssignments ClassSubjectAssignment[]
+  teachableSubjects Subject[] @relation("TeacherSubjects")
+   maxPeriodsPerWeek Int?
+   timetableEntries TimetableEntry[]
 
   // Ensure email is unique per school
   @@unique([email, schoolId])
@@ -116,6 +121,7 @@ model Student {
   updatedAt   DateTime @updatedAt
 
   // Relation to School: Every student must belong to one school
+  
   classId     String?
   class       Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
   schoolId    String
@@ -141,6 +147,8 @@ model Class {
 
   // A class has many students
   students Student[]
+  subjectRequirements ClassSubjectRequirement[]
+  timetableEntries TimetableEntry[]
 
   @@unique([name, schoolId])
 }
@@ -157,6 +165,11 @@ model Subject {
 
   // A subject can be in many class assignments
   classAssignments ClassSubjectAssignment[]
+   qualifiedTeachers User[] @relation("TeacherSubjects")
+
+  // A subject has many weekly requirements in different classes
+  classRequirements ClassSubjectRequirement[]
+  timetableEntries TimetableEntry[]
 
   @@unique([name, schoolId])
 }
@@ -178,4 +191,68 @@ model ClassSubjectAssignment {
   createdAt DateTime @default(now())
 
   @@unique([classId, subjectId]) // A subject can only be assigned once per class
+}
+
+model TimeSlot {
+  id           String    @id @default(cuid())
+  dayOfWeek    DayOfWeek // e.g., MONDAY, TUESDAY
+  periodNumber Int
+  startTime    String    // e.g., "08:00"
+  endTime      String    // e.g., "08:40"
+  isBreak      Boolean   @default(false) // To mark lunch breaks, etc.
+  timetableEntries TimetableEntry[]
+
+  // Relation to School
+  schoolId     String
+  school       School    @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, dayOfWeek, periodNumber])
+}
+
+// Defines how many periods of a subject a class needs per week
+model ClassSubjectRequirement {
+  id              String  @id @default(cuid())
+  periodsPerWeek  Int
+
+  classId         String
+  class           Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  subjectId       String
+  subject         Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, subjectId])
+}
+
+// --- NEW ENUM ---
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model TimetableEntry {
+  id        String  @id @default(cuid())
+
+  classId   String
+  class     Class   @relation(fields: [classId], references: [id])
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  teacherId String
+  teacher   User    @relation(fields: [teacherId], references: [id])
+
+  timeSlotId String
+  timeSlot  TimeSlot @relation(fields: [timeSlotId], references: [id])
+
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+
+  @@unique([timeSlotId, classId])   // A class can only have one subject per slot
+  @@unique([timeSlotId, teacherId]) // A teacher can only have one class per slot
 }
