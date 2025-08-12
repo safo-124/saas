@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { SchoolActions } from "../../_components/school-actions";
 
-// Helper function to determine the visual style of the status badge
 const getStatusBadgeVariant = (status) => {
   switch (status) {
     case 'ACTIVE': return 'default';
@@ -20,7 +19,7 @@ const getStatusBadgeVariant = (status) => {
   }
 };
 
-export function SchoolCard({ school, plans }) {
+export function SchoolCard({ school, plans, allModules }) {
   return (
     <Card>
       <CardHeader>
@@ -29,15 +28,17 @@ export function SchoolCard({ school, plans }) {
             <CardTitle className="text-xl">{school.name}</CardTitle>
             <CardDescription>subdomain: {school.subdomain}</CardDescription>
           </div>
-          {/* The actions dropdown menu, now with plans passed to it */}
-          <SchoolActions school={school} plans={plans} />
+          <SchoolActions 
+            school={school} 
+            plans={plans} 
+            allModules={allModules}
+          />
         </div>
       </CardHeader>
       <CardContent className="space-x-2">
         <Badge variant={getStatusBadgeVariant(school.subscriptionStatus)}>
           {school.subscriptionStatus}
         </Badge>
-        {/* Display the assigned plan name if it exists */}
         {school.plan ? (
             <Badge variant="outline">{school.plan.name}</Badge>
         ) : (

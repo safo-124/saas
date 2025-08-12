@@ -28,7 +28,10 @@ model School {
   subscriptionStatus SubscriptionStatus @default(TRIAL)
   
   // Later we will add relations to users, students, etc.
+  modules Module[]
   users User[]
+  students  Student[]
+  classes   Class[]
   planId String?
   plan   SubscriptionPlan? @relation(fields: [planId], references: [id])
 }
@@ -42,6 +45,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  classInCharge Class[] @relation("ClassTeacher")
+
   // Relation to School: Every user must belong to one school
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
@@ -52,8 +57,12 @@ model User {
 
 // Define an Enum for the user roles
 enum UserRole {
-  ADMIN
+  ADMIN             // The main school administrator
   TEACHER
+  HR                // Human Resources
+  ACCOUNTANT
+  LIBRARIAN
+  PROCUREMENT_OFFICER // For managing stores/inventory
 }
 
 enum SubscriptionStatus {
@@ -86,4 +95,49 @@ model SubscriptionPlan {
 enum PlanStatus {
   ACTIVE
   ARCHIVED
+}
+model Module {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "Library Management"
+  description String?
+  key         String   @unique // e.g., "LIBRARY", "STORES"
+
+  // A module can be enabled for many schools
+  schools School[]
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  name        String
+  studentId   String   // A unique ID assigned by the school
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relation to School: Every student must belong to one school
+  classId     String?
+  class       Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, schoolId])
+}
+
+model Class {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Grade 10 - Section A"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to School
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relation to the main class teacher
+  classTeacherId String?
+  classTeacher   User?    @relation("ClassTeacher", fields: [classTeacherId], references: [id], onDelete: SetNull)
+
+  // A class has many students
+  students Student[]
+
+  @@unique([name, schoolId])
 }

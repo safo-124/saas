@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { MoreHorizontal, UserCheck } from 'lucide-react';
+import { MoreHorizontal, UserCheck, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,10 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { ManageRoleDialog } from './manage-role-dialog';
 
 export function UserActions({ user }) {
   const router = useRouter();
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
 
   const handleImpersonate = async () => {
     const promise = fetch('/api/auth/impersonate', {
@@ -40,24 +44,40 @@ export function UserActions({ user }) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={handleImpersonate}
-          disabled={user.role !== 'ADMIN'} // Only allow impersonating other Admins
-          className="flex items-center gap-2"
-        >
-          <UserCheck className="h-4 w-4" />
-          Impersonate User
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setIsRoleDialogOpen(true)}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span>Manage Role</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleImpersonate}
+            disabled={user.role !== 'ADMIN'}
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <UserCheck className="h-4 w-4" />
+            <span>Impersonate User</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ManageRoleDialog
+        user={user}
+        open={isRoleDialogOpen}
+        onOpenChange={setIsRoleDialogOpen}
+      />
+    </>
   );
 }

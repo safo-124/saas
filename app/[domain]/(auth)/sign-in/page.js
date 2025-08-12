@@ -1,4 +1,3 @@
-// app/[domain]/(auth)/sign-in/page.js
 import { PrismaClient } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { SignInForm } from './_components/sign-in-form';

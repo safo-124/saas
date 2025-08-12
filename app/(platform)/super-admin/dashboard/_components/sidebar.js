@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, Building, Users, CreditCard, Settings2, LogOut } from 'lucide-react';
+import { LayoutGrid, Building, Users, CreditCard, Settings2, LogOut, Package } from 'lucide-react';
 
 const navItems = [
   { name: 'Overview', href: '/super-admin/dashboard', icon: LayoutGrid },
   { name: 'Schools', href: '/super-admin/dashboard/schools', icon: Building },
   { name: 'Users', href: '/super-admin/dashboard/users', icon: Users },
+  { name: 'Modules', href: '/super-admin/dashboard/modules', icon: Package },
   { name: 'Plans', href: '/super-admin/dashboard/plans', icon: CreditCard },
   { name: 'Settings', href: '/super-admin/dashboard/settings', icon: Settings2 },
 ];

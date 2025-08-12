@@ -8,25 +8,31 @@ export async function PATCH(request, { params }) {
     const { schoolId } = params;
     const body = await request.json();
     
-    const { name, subdomain, subscriptionStatus, planId } = body;
+    const { name, subdomain, subscriptionStatus, planId, moduleIds } = body;
 
     const dataToUpdate = {};
     if (name !== undefined) dataToUpdate.name = name;
     if (subdomain !== undefined) dataToUpdate.subdomain = subdomain;
     if (subscriptionStatus !== undefined) dataToUpdate.subscriptionStatus = subscriptionStatus;
-    // Specifically handle planId, allowing it to be set or unset (null)
     if (planId !== undefined) dataToUpdate.planId = planId;
+    
+    // Handle updating the many-to-many relationship for modules
+    if (moduleIds !== undefined) {
+      dataToUpdate.modules = {
+        // `set` overwrites the existing relations with the new list of IDs
+        set: moduleIds.map(id => ({ id: id }))
+      };
+    }
 
     if (Object.keys(dataToUpdate).length === 0) {
       return NextResponse.json({ message: 'No fields to update provided' }, { status: 400 });
     }
 
-    // If the subdomain is being updated, check if it's already taken
     if (subdomain) {
       const existingSchool = await prisma.school.findFirst({
         where: {
           subdomain: subdomain,
-          id: { not: schoolId }, // Exclude the current school from the check
+          id: { not: schoolId },
         },
       });
       if (existingSchool) {
@@ -37,6 +43,10 @@ export async function PATCH(request, { params }) {
     const updatedSchool = await prisma.school.update({
       where: { id: schoolId },
       data: dataToUpdate,
+      // Include the updated modules in the response
+      include: {
+        modules: { select: { id: true } },
+      }
     });
 
     return NextResponse.json(updatedSchool, { status: 200 });

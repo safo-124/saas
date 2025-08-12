@@ -17,16 +17,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { EditSchoolDialog } from './edit-school-dialog';
 
-export function SchoolActions({ school, plans }) {
+export function SchoolActions({ school, plans, allModules }) {
   const router = useRouter();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Handles the deactivation of a school with a confirmation prompt
   const handleDeactivate = async () => {
     const confirmation = confirm(
-      `Are you sure you want to deactivate "${school.name}"? This will prevent users from accessing their dashboard.`
+      `Are you sure you want to deactivate "${school.name}"?`
     );
-    
     if (!confirmation) return;
 
     const promise = fetch(`/api/schools/${school.id}`, {
@@ -34,10 +32,8 @@ export function SchoolActions({ school, plans }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subscriptionStatus: 'DEACTIVATED' }),
     }).then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to deactivate school.');
-      }
-      router.refresh(); // Refresh page to show the updated status
+      if (!response.ok) throw new Error('Failed to deactivate school.');
+      router.refresh();
       return response.json();
     });
 
@@ -50,7 +46,6 @@ export function SchoolActions({ school, plans }) {
 
   return (
     <>
-      {/* The Dropdown Menu for all actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -77,10 +72,10 @@ export function SchoolActions({ school, plans }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* The Edit Dialog, controlled by state from this component */}
       <EditSchoolDialog
         school={school}
         plans={plans}
+        allModules={allModules}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
       />

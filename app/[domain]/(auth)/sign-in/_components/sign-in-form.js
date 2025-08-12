@@ -1,4 +1,3 @@
-// app/[domain]/(auth)/sign-in/_components/sign-in-form.js
 'use client';
 
 import { useState } from 'react';
@@ -23,7 +22,7 @@ export function SignInForm({ subdomain }) {
       const response = await fetch('/api/auth/school/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, subdomain }), // Send subdomain to API
+        body: JSON.stringify({ email, password, subdomain }),
       });
 
       if (!response.ok) {
@@ -32,7 +31,7 @@ export function SignInForm({ subdomain }) {
       }
 
       toast.success("Login Successful!");
-      router.push('/dashboard'); // Redirect to school dashboard
+      router.push('/dashboard');
 
     } catch (err) {
       toast.error("Login Failed", { description: err.message });
