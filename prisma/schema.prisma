@@ -35,6 +35,7 @@ model School {
   subjects  Subject[]
   timeSlots TimeSlot[]
   timetableEntries TimetableEntry[]
+   attendanceRecords AttendanceRecord[]
   planId String?
   plan   SubscriptionPlan? @relation(fields: [planId], references: [id])
 }
@@ -57,6 +58,7 @@ model User {
   teachableSubjects Subject[] @relation("TeacherSubjects")
    maxPeriodsPerWeek Int?
    timetableEntries TimetableEntry[]
+    attendanceRecords AttendanceRecord[]
 
   // Ensure email is unique per school
   @@unique([email, schoolId])
@@ -126,6 +128,7 @@ model Student {
   class       Class?   @relation(fields: [classId], references: [id], onDelete: SetNull)
   schoolId    String
   school      School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+   attendanceRecords AttendanceRecord[]
 
   @@unique([studentId, schoolId])
 }
@@ -255,4 +258,34 @@ model TimetableEntry {
 
   @@unique([timeSlotId, classId])   // A class can only have one subject per slot
   @@unique([timeSlotId, teacherId]) // A teacher can only have one class per slot
+}
+
+model AttendanceRecord {
+  id        String           @id @default(cuid())
+  date      DateTime         @db.Date // Store only the date, not the time
+  status    AttendanceStatus // e.g., PRESENT, ABSENT, LATE
+  remarks   String?          // Optional notes from the teacher
+  createdAt DateTime         @default(now())
+
+  // Relation to School
+  schoolId  String
+  school    School           @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // Relation to the student
+  studentId String
+  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Relation to the teacher who took attendance
+  takenById String
+  takenBy   User             @relation(fields: [takenById], references: [id], onDelete: Cascade)
+
+  // Ensure a student has only one record per day
+  @@unique([studentId, date])
+}
+
+// --- NEW ENUM ---
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
 }
