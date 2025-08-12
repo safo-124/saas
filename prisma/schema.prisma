@@ -32,6 +32,7 @@ model School {
   users User[]
   students  Student[]
   classes   Class[]
+  subjects  Subject[]
   planId String?
   plan   SubscriptionPlan? @relation(fields: [planId], references: [id])
 }
@@ -50,6 +51,7 @@ model User {
   // Relation to School: Every user must belong to one school
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  subjectAssignments ClassSubjectAssignment[]
 
   // Ensure email is unique per school
   @@unique([email, schoolId])
@@ -131,6 +133,7 @@ model Class {
   // Relation to School
   schoolId  String
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  subjectAssignments ClassSubjectAssignment[]
 
   // Relation to the main class teacher
   classTeacherId String?
@@ -140,4 +143,39 @@ model Class {
   students Student[]
 
   @@unique([name, schoolId])
+}
+model Subject {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Mathematics", "Physics"
+  code      String?  // e.g., "MATH-101"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to School
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  // A subject can be in many class assignments
+  classAssignments ClassSubjectAssignment[]
+
+  @@unique([name, schoolId])
+}
+
+// --- NEW JOIN MODEL ---
+// This model connects a Class, a Subject, and a Teacher
+model ClassSubjectAssignment {
+  id        String   @id @default(cuid())
+
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([classId, subjectId]) // A subject can only be assigned once per class
 }

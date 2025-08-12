@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Book, Banknote, Megaphone, Library, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Book, Banknote, Megaphone, Library, Package, BookOpen } from 'lucide-react';
 
 // These items correspond to the modules a school can have
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { name: 'Staff', href: '/staff', icon: Users },
   { name: 'Students', href: '/students', icon: Users },
   { name: 'Classes', href: '/classes', icon: Book },
+    { name: 'Subjects', href: '/subjects', icon: BookOpen },
   { name: 'Fees', href: '/fees', icon: Banknote },
   { name: 'Library', href: '/library', icon: Library },
   { name: 'Stores', href: '/stores', icon: Package },

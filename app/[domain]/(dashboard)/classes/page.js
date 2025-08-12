@@ -48,23 +48,24 @@ export default async function ClassManagementPage({ params }) {
       {classes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classes.map((c) => (
-            <Link key={c.id} href={`/classes/${c.id}`} legacyBehavior>
-              <a className="block">
-                <Card className="hover:shadow-lg hover:border-blue-500 transition-all h-full">
-                  <CardHeader>
-                    <CardTitle>{c.name}</CardTitle>
-                    <CardDescription>
-                      {c._count.students} Student(s)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <User className="h-4 w-4 mr-2" />
-                      Class Teacher: {c.classTeacher?.name || 'Not Assigned'}
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
+            // --- THIS IS THE CORRECTED PART ---
+            // The <Link> component now directly wraps the <Card>
+            // and the `legacyBehavior` prop and `<a>` tag are removed.
+            <Link key={c.id} href={`/classes/${c.id}`} className="block">
+              <Card className="hover:shadow-lg hover:border-blue-500 transition-all h-full">
+                <CardHeader>
+                  <CardTitle>{c.name}</CardTitle>
+                  <CardDescription>
+                    {c._count.students} Student(s)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <User className="h-4 w-4 mr-2" />
+                    Class Teacher: {c.classTeacher?.name || 'Not Assigned'}
+                  </div>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>
