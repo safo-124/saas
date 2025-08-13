@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PrismaClient } from '@prisma/client';
 import { ImpersonationBanner } from '@/app/_components/impersonation-banner';
-import { Sidebar } from './_components/sidebar';
+import { Navbar } from './_components/navbar'; // Import the new Navbar
 
 const prisma = new PrismaClient();
 
@@ -21,11 +21,15 @@ export default async function SchoolDashboardLayout({ children, params }) {
     }
 
     return (
-        <div className="flex min-h-screen">
-            <Sidebar schoolName={school.name} />
-            <main className="flex-1 p-8 bg-gray-100 ml-64"> {/* Offset for fixed sidebar */}
+        <div className="min-h-screen flex flex-col">
+            {/* The new top navbar */}
+            <Navbar schoolName={school.name} />
+
+            {/* The main content area, with top padding to offset the navbar's height */}
+            <main className="flex-1 p-8 bg-gray-100 pt-24">
                 {children}
             </main>
+
             <ImpersonationBanner />
         </div>
     );

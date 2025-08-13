@@ -30,14 +30,13 @@ export default async function StudentManagementPage({ params }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Student Management</h1>
-        {/* Pass the list of classes to the dialog component */}
         <AddStudentDialog classes={classes} />
       </div>
 
       {students.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {students.map((student) => (
-            <StudentCard key={student.id} student={student} />
+            <StudentCard key={student.id} student={student} classes={classes} />
           ))}
         </div>
       ) : (
